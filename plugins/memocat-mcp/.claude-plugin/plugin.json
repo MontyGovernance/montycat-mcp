@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "memocat-mcp",
   "description": "Compatibility plugin for Montycat MCP, formerly MemoCat MCP. New installations should use montycat-mcp.",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": {
     "name": "MontyGovernance"
   },

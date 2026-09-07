@@ -1,12 +1,12 @@
 [project]
 name = "memocat-mcp"
-version = "1.1.1"
+version = "1.1.2"
 description = "Compatibility launcher for Montycat MCP (formerly MemoCat MCP)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "MontyGovernance" }]
-dependencies = ["montycat-mcp==1.1.1"]
+dependencies = ["montycat-mcp==1.1.2"]
 
 [project.scripts]
 memocat-mcp = "montycat_mcp.server:main"

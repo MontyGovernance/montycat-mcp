@@ -2,6 +2,15 @@
 
 All notable changes to Montycat MCP are documented here.
 
+## 1.1.2 — 2026-09-06
+
+Improves the product identity advertised to MCP clients.
+
+### Changed
+
+- Advertise `Montycat MCP` as the human-facing server name during the MCP
+  handshake while retaining existing package IDs and Claude configuration keys.
+
 ## 1.1.1 — 2026-09-06
 
 Adds read-only enforced-schema discovery for safer structured memory access.
@@ -12,11 +21,6 @@ Adds read-only enforced-schema discovery for safer structured memory access.
   names, required fields, and data types before writing structured records.
 - Guide agents to inspect schemas when a structured write or filtered retrieval
   must conform to uncertain field names or data types.
-
-### Changed
-
-- Advertise `Montycat MCP` as the human-facing server name during the MCP
-  handshake while retaining existing package IDs and Claude configuration keys.
 
 ## 1.1.0 — 2026-09-03
 

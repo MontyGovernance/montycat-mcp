@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "io.github.montygovernance.montycat-mcp",
   "display_name": "Montycat MCP — Shared Memory for AI Agents",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Shared, persistent memory for AI agents — local-first, live, and searchable by meaning.",
   "long_description": "Montycat MCP gives Claude Desktop and other MCP-compatible AI systems one durable memory across conversations. Agents connected to the same Montycat engine can remember preferences, decisions, facts, and structured knowledge; recall relevant context by meaning; and react to each other's updates in real time. Run it locally by default or connect it to a trusted shared engine, with the database and embeddings under your control.",
   "author": {

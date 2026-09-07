@@ -26,9 +26,9 @@ services:
     build:
       context: .
       args:
-        VERSION: ${MONTYCAT_VERSION:-1.1.1}
+        VERSION: ${MONTYCAT_VERSION:-1.1.2}
         VCS_REF: ${MONTYCAT_VCS_REF:-unknown}
-    image: montygovernance/montycat-mcp:${MONTYCAT_VERSION:-1.1.1}
+    image: montygovernance/montycat-mcp:${MONTYCAT_VERSION:-1.1.2}
     environment:
       MONTYCAT_HOST: montycat
       MONTYCAT_PORT: "21210"
