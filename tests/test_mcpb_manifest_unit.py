@@ -59,6 +59,12 @@ def test_manifest_declares_exactly_the_runtime_tools():
     assert declared == runtime
 
 
+def test_runtime_advertises_the_product_display_name():
+    from montycat_mcp.server import mcp
+
+    assert mcp.name == "Montycat MCP"
+
+
 def test_public_metadata_positions_montycat_as_cross_system_shared_memory():
     manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
     registry = json.loads((ROOT / "server.json").read_text(encoding="utf-8"))

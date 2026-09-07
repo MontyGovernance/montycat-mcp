@@ -13,6 +13,11 @@ Adds read-only enforced-schema discovery for safer structured memory access.
 - Guide agents to inspect schemas when a structured write or filtered retrieval
   must conform to uncertain field names or data types.
 
+### Changed
+
+- Advertise `Montycat MCP` as the human-facing server name during the MCP
+  handshake while retaining existing package IDs and Claude configuration keys.
+
 ## 1.1.0 — 2026-09-03
 
 Aligns with Montycat Semantic 1.3.4 and the Montycat Python client 1.2.3.

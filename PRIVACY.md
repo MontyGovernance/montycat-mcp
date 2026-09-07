@@ -7,7 +7,7 @@ MontyGovernance. It can be used by Claude Desktop, OpenAI Codex, Cursor, and
 other MCP-compatible systems. This policy describes data handling by Montycat MCP,
 its desktop-extension package, and its Montycat engine integration.
 
-## Data collection and processing
+## Data collection and processing 
 
 Montycat MCP processes the memory records, search queries, vectors, keyspace names,
 and configuration necessary to perform the MCP tool calls a user authorizes in

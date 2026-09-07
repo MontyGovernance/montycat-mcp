@@ -101,7 +101,10 @@ with montycat_list_enforced_schemas first; do not perform a schema lookup for
 ordinary schema-free memory. Do not store secrets or full conversation transcripts
 by default."""
 
-mcp = FastMCP("montycat", instructions=SERVER_INSTRUCTIONS)
+# This is the human-facing name advertised during the MCP initialize handshake.
+# Keep package IDs and client configuration keys stable; they are separate from
+# this display name and changing them would disrupt existing Claude installs.
+mcp = FastMCP("Montycat MCP", instructions=SERVER_INSTRUCTIONS)
 
 # Safety metadata returned by MCP tools/list. Mutating tools are identified
 # truthfully; each MCP host decides which operations require user confirmation.

@@ -56,6 +56,7 @@ async def test_advertises_resource_subscription():
     the server builds its own InitializationOptions. If that override ever
     stops applying, push dies silently — this is the guard."""
     async with mcp_session() as (_, init):
+        assert init.serverInfo.name == "Montycat MCP"
         resources = init.capabilities.resources
         assert resources is not None
         assert resources.subscribe is True
