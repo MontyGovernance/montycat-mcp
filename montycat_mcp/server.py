@@ -95,8 +95,11 @@ switch to mode='keyword' when the query hinges on an exact term such as an
 identifier or error code, and mode='hybrid' when it is both. Use scope='shared'
 only when the user intends other authorized agents to access the memory. Sharing requires
 clients to connect to the same Montycat engine and keyspace—separate local
-engines do not synchronize. Do not store secrets or full conversation
-transcripts by default."""
+engines do not synchronize. When a structured write or retrieval must use an
+existing schema and its field names or types are uncertain, inspect that keyspace
+with montycat_list_enforced_schemas first; do not perform a schema lookup for
+ordinary schema-free memory. Do not store secrets or full conversation transcripts
+by default."""
 
 mcp = FastMCP("montycat", instructions=SERVER_INSTRUCTIONS)
 
@@ -843,6 +846,33 @@ async def montycat_list_keyspaces() -> Any:
     """List the available memory stores and keyspaces on this Montycat engine."""
     await _engine_ready()
     return await _call(_get_engine().get_structure_available())
+
+
+@mcp.tool(title="List Enforced Schemas", annotations=READ_ONLY)
+@_engine_tool
+async def montycat_list_enforced_schemas(
+    keyspace: Optional[str] = None,
+    scope: Optional[str] = None,
+) -> Any:
+    """List schemas enforced on a keyspace, including field data types.
+
+    Use this before a structured write or retrieval when the target keyspace's
+    required fields or types are unknown. For retrieval, it helps construct
+    correctly typed field filters. This inspection is read-only and never
+    creates a missing keyspace.
+
+    Args:
+        keyspace: Explicit keyspace name. Takes precedence over scope.
+        scope: Owner/user memory scope (maps to its configured keyspace). Use
+               "shared" for the common keyspace. When both inputs are omitted,
+               the configured default keyspace is inspected.
+    """
+    name = _resolve_keyspace(scope, keyspace)
+    persistent = await _resolve_persistent(name)
+    if persistent is None:
+        return _failure(f"Keyspace {name!r} does not exist.")
+    ks = _keyspace(name, persistent=persistent)
+    return await _call(ks.list_all_schemas_in_keyspace())
 
 
 @mcp.tool(title="View Memory Policy", annotations=READ_ONLY)
@@ -1833,6 +1863,7 @@ memocat_remember = montycat_remember
 memocat_recall = montycat_recall
 memocat_install_engine = montycat_install_engine
 memocat_list_keyspaces = montycat_list_keyspaces
+memocat_list_enforced_schemas = montycat_list_enforced_schemas
 memocat_policy_view = montycat_policy_view
 memocat_policy_history = montycat_policy_history
 memocat_policy_explain = montycat_policy_explain

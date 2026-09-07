@@ -3,7 +3,7 @@
 # `docker compose run -T mcp`) and keep Montycat in the companion service.
 FROM python:3.12-slim
 
-ARG VERSION=1.0.0
+ARG VERSION=1.1.1
 ARG VCS_REF=unknown
 
 LABEL org.opencontainers.image.title="Montycat MCP" \

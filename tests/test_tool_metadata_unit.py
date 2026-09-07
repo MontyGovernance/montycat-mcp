@@ -10,6 +10,7 @@ READ_ONLY = {
     "montycat_recall",
     "montycat_list_memories",
     "montycat_list_keyspaces",
+    "montycat_list_enforced_schemas",
     "montycat_semantic_status",
     "montycat_policy_view",
     "montycat_policy_history",
@@ -43,7 +44,7 @@ NON_DESTRUCTIVE_MUTATING = {
 async def test_all_tools_have_directory_metadata():
     tools = {tool.name: tool for tool in await mcp.list_tools()}
     assert set(tools) == READ_ONLY | NON_DESTRUCTIVE_MUTATING | DESTRUCTIVE
-    assert len(tools) == 23
+    assert len(tools) == 24
 
     for name, tool in tools.items():
         assert tool.title, f"{name} must have a user-facing title"
@@ -70,4 +71,6 @@ def test_server_explains_safe_shared_memory_behavior_to_mcp_hosts():
     assert mcp._mcp_server.instructions == SERVER_INSTRUCTIONS
     assert "shared, persistent memory" in SERVER_INSTRUCTIONS
     assert "same Montycat engine" in SERVER_INSTRUCTIONS
+    assert "montycat_list_enforced_schemas" in SERVER_INSTRUCTIONS
+    assert "write or retrieval" in SERVER_INSTRUCTIONS
     assert "Do not store secrets" in SERVER_INSTRUCTIONS

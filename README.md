@@ -85,6 +85,7 @@ isolation, give each MCP server its own least-privilege Montycat credential.
 |---|---|
 | Store | `montycat_remember`, `montycat_remember_bulk`, `montycat_update`, `montycat_forget` |
 | Recall | `montycat_semantic_search`, `montycat_recall`, `montycat_list_memories` |
+| Inspect schemas | `montycat_list_enforced_schemas` — check field names and data types before structured writes or filtered retrieval |
 | Collaborate | `montycat_await_memory_change` — wait for another agent's write, no polling |
 | Namespaces | `montycat_list_keyspaces`, `montycat_create_keyspace`, `montycat_remove_keyspace` |
 | Admin | semantic index, snapshot, and policy tools — see the [plugin guide](plugins/montycat-mcp/README.md) |

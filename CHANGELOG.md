@@ -2,6 +2,17 @@
 
 All notable changes to Montycat MCP are documented here.
 
+## 1.1.1 — 2026-09-06
+
+Adds read-only enforced-schema discovery for safer structured memory access.
+
+### Added
+
+- Add the read-only `montycat_list_enforced_schemas` tool to inspect schema
+  names, required fields, and data types before writing structured records.
+- Guide agents to inspect schemas when a structured write or filtered retrieval
+  must conform to uncertain field names or data types.
+
 ## 1.1.0 — 2026-09-03
 
 Aligns with Montycat Semantic 1.3.4 and the Montycat Python client 1.2.3.
