@@ -187,3 +187,40 @@ async def test_oldest_first_listing_reads_ascending(server, persistent):
     await server.montycat_list_memories(keyspace="k", limit=3, recent=False)
 
     assert persistent.call["order"] is ResultOrder.ASCENDING
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode", ["semantic", "keyword", "hybrid"])
+@pytest.mark.parametrize("bounds, expected", [
+    ({"since": "2026-01-01T00:00:00"}, {"after_timestamp": "2026-01-01T00:00:00"}),
+    ({"until": "2026-02-01T00:00:00"}, {"before_timestamp": "2026-02-01T00:00:00"}),
+    ({"since": "2026-01-01T00:00:00", "until": "2026-02-01T00:00:00"},
+     {"range_timestamp": ["2026-01-01T00:00:00", "2026-02-01T00:00:00"]}),
+])
+async def test_native_timestamp_targets_selected_index(server, keyspace, mode, bounds, expected):
+    from montycat import Timestamp
+    from montycat.store_functions.store_generic_functions import handle_timestamps_and_pointers
+    original = {"project": "montycat"}
+    await server.montycat_semantic_search(
+        query="index", keyspace="k", mode=mode, filters=original,
+        timestamp_field="event_time", **bounds)
+    sent = keyspace.call["filters"]
+    assert isinstance(sent["event_time"], Timestamp)
+    assert sent["event_time"].serialize() == expected
+    assert handle_timestamps_and_pointers(sent) == {"event_time": expected, "project": "montycat"}
+    assert original == {"project": "montycat"}
+    assert "_created_at" not in sent
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("kwargs, message", [
+    ({"timestamp_field": " "}, "timestamp_field"),
+    ({"since": ""}, "since"),
+    ({"until": " "}, "until"),
+    ({"timestamp_field": "event_time", "since": "2026-01-01",
+      "filters": {"event_time": "existing"}}, "already contains"),
+])
+async def test_invalid_time_filters_do_not_search(server, keyspace, kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        await server.montycat_semantic_search(query="index", keyspace="k", **kwargs)
+    assert keyspace.call is None

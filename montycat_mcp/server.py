@@ -650,6 +650,7 @@ async def montycat_semantic_search(
     since: Optional[str] = None,
     until: Optional[str] = None,
     vector: Optional[list[float]] = None,
+    timestamp_field: str = "_created_at",
 ) -> Any:
     """Search stored memory by MEANING, by KEYWORD, or both.
 
@@ -692,9 +693,15 @@ async def montycat_semantic_search(
                    keyword.
         filters: Optional metadata constraints, e.g. {"project": "x"} — only
                  memories whose indexed fields equal these values are ranked.
-        since: Only memories created at/after this time (ISO-8601, UTC —
-               matches the auto-stamped `_created_at`).
-        until: Only memories created before this time (ISO-8601, UTC).
+        timestamp_field: Native Timestamp index field to constrain, e.g.
+                         "event_time". Defaults to the auto-stamped "_created_at".
+                         Use the index field name, not "timestamps.event_time".
+                         The field must be stored as a Timestamp index; an
+                         ordinary JSON string field is not sufficient.
+        since: Lower time bound for timestamp_field (ISO-8601, UTC).
+        until: Upper time bound for timestamp_field (ISO-8601, UTC).
+               Bounds use the SDK's native Timestamp after/before/range queries.
+               Do not also put timestamp_field in filters when supplying bounds.
     """
     _validate_limit(limit)
     search_mode = _validate_mode(mode)
@@ -705,15 +712,24 @@ async def montycat_semantic_search(
     # against; failing here beats an engine-side rejection with less context.
     if search_mode is SearchMode.KEYWORD and not query.strip():
         raise ValueError("keyword mode needs query text; a vector alone cannot be scored.")
-    ks = await _bind(_resolve_keyspace(scope, keyspace))
-    if since or until:
+    if not isinstance(timestamp_field, str) or not timestamp_field.strip():
+        raise ValueError("timestamp_field must be a non-empty Timestamp index field name.")
+    for name, bound in (("since", since), ("until", until)):
+        if bound is not None and (not isinstance(bound, str) or not bound.strip()):
+            raise ValueError(f"{name} must be a non-empty timestamp string.")
+    if since is not None or until is not None:
         filters = dict(filters or {})
-        if since and until:
-            filters["_created_at"] = Timestamp(start=since, end=until)
-        elif since:
-            filters["_created_at"] = Timestamp(after=since)
+        if timestamp_field in filters:
+            raise ValueError(
+                f"filters already contains {timestamp_field!r}; use either that filter or since/until."
+            )
+        if since is not None and until is not None:
+            filters[timestamp_field] = Timestamp(start=since, end=until)
+        elif since is not None:
+            filters[timestamp_field] = Timestamp(after=since)
         else:
-            filters["_created_at"] = Timestamp(before=until)
+            filters[timestamp_field] = Timestamp(before=until)
+    ks = await _bind(_resolve_keyspace(scope, keyspace))
     return await _call(ks.search_values(
         query=query,
         mode=search_mode,

@@ -118,6 +118,36 @@ async def test_since_and_until_split_the_corpus(server, keyspace):
     assert old[0]["__value__"]["_created_at"] == "2020-01-01T00:00:00"
 
 
+async def test_time_bounds_target_selected_timestamp_index(server, keyspace):
+    values = [
+        {
+            "text": "old release used sled storage",
+            "timestamps": {"event_time": "2020-01-01T00:00:00"},
+        },
+        {
+            "text": "new release uses updated storage",
+            "timestamps": {"event_time": "2026-01-01T00:00:00"},
+        },
+    ]
+    for value in values:
+        result = await server.montycat_remember(
+            value=value, keyspace=keyspace, wait_for_index=True
+        )
+        assert result["status"], result
+
+    old = payload(await server.montycat_semantic_search(
+        query="release storage", keyspace=keyspace, limit=10,
+        timestamp_field="event_time", until="2021-01-01T00:00:00"))
+    assert len(old) == 1
+    assert old[0]["__value__"]["event_time"] == "2020-01-01T00:00:00"
+
+    new = payload(await server.montycat_semantic_search(
+        query="release storage", keyspace=keyspace, limit=10,
+        timestamp_field="event_time", since="2025-01-01T00:00:00"))
+    assert len(new) == 1
+    assert new[0]["__value__"]["event_time"] == "2026-01-01T00:00:00"
+
+
 async def test_time_window_and_metadata_compose(server, keyspace):
     """The whole point of filtered recall: both constraints in one call."""
     await seed(server, keyspace)
