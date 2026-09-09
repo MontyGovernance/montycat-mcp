@@ -11,5 +11,5 @@ the former `memocat_*` names must update those calls.
 New installations should use:
 
 ```bash
-uvx montycat-mcp
+uvx montycat-mcp 
 ```
