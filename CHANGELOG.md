@@ -2,6 +2,21 @@
 
 All notable changes to Montycat MCP are documented here.
 
+## 1.1.3 — 2026-09-08
+
+### Changed
+
+- Add `timestamp_field` to `montycat_semantic_search`. `since` and `until`
+  now build native SDK `Timestamp` filters against the selected Timestamp index
+  field, defaulting to `_created_at` for compatibility.
+- Reject empty timestamp field names and bounds, and reject a conflicting
+  `filters[timestamp_field]` entry rather than silently replacing it.
+
+### Fixed
+
+- Time-bounded recall no longer assumes every range query targets
+  `_created_at`; callers can query any explicitly indexed Timestamp field.
+
 ## 1.1.2 — 2026-09-06
 
 Improves the product identity advertised to MCP clients.

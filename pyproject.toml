@@ -67,7 +67,7 @@ dependencies = [
     # status, and re-embedding; 1.2.3 adds the unified `search_values` with
     # BM25 keyword and hybrid ranking. Montycat MCP exposes all of those
     # surfaces, and `search_values` has no fallback on older clients.
-    "montycat>=1.2.3,<2",
+    "montycat>=1.2.4,<2",
 ]
 
 [project.scripts]
