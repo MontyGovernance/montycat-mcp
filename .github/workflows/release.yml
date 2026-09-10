@@ -74,19 +74,19 @@ jobs:
         working-directory: dist
         run: sha256sum "montycat-mcp-${{ steps.version.outputs.version }}.mcpb" > "montycat-mcp-${{ steps.version.outputs.version }}.mcpb.sha256"
 
-      # A version-named asset cannot be linked from anywhere durable: the URL
-      # dies at the next release. This unversioned copy is what
-      # releases/latest/download/montycat-mcp.mcpb resolves to, and it is the
-      # only .mcpb URL the website and README should ever use. The checksum is
-      # regenerated rather than copied so its body names the stable file —
-      # `sha256sum -c` reads that name and would otherwise look for the
-      # versioned one.
-      - name: Create stable-named MCPB for latest-release links
+      # Version-named assets cannot be linked from anywhere durable because the
+      # URL changes at every release. Keep the existing product-named alias and
+      # also publish the generic latest.mcpb alias. Regenerate each checksum so
+      # `sha256sum -c` reads the stable filename from the checksum body.
+      - name: Create stable-named MCPBs for latest-release links
         working-directory: dist
         run: |
           cp "montycat-mcp-${{ steps.version.outputs.version }}.mcpb" montycat-mcp.mcpb
+          cp "montycat-mcp-${{ steps.version.outputs.version }}.mcpb" latest.mcpb
           sha256sum montycat-mcp.mcpb > montycat-mcp.mcpb.sha256
+          sha256sum latest.mcpb > latest.mcpb.sha256
           sha256sum -c montycat-mcp.mcpb.sha256
+          sha256sum -c latest.mcpb.sha256
 
       - name: Upload Python distributions
         uses: actions/upload-artifact@v4
