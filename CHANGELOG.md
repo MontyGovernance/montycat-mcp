@@ -2,7 +2,21 @@
 
 All notable changes to Montycat MCP are documented here.
 
-## 1.1.4 — 2026-09-08
+## 1.1.4 — 2026-09-11
+
+Maintenance release. No tool, API, or engine-compatibility changes.
+
+### Changed
+
+- Refresh the 512×512 transparent directory icon carried by the Claude Desktop
+  extension, the Claude plugins, and the MCP Registry listing.
+- Publish 1.1.4 across every distribution in step: the `montycat-mcp` Python
+  package, the `memocat-mcp` compatibility launcher and its pin on
+  `montycat-mcp==1.1.4`, the Docker image and Compose defaults, the Claude
+  Desktop manifest, both Claude plugins, and the PyPI and OCI entries in
+  `server.json`.
+
+## 1.1.3 — 2026-09-08
 
 ### Changed
 
