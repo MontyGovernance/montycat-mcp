@@ -2,6 +2,26 @@
 
 All notable changes to Montycat MCP are documented here.
 
+## 1.1.5 — 2026-09-17
+
+### Changed
+
+- Require Montycat Python client 1.2.5 so `montycat_update` preserves
+  schema-defined timestamp metadata and keeps updated memories visible to
+  `since` / `until` searches.
+- Expose platform certificate verification and certificate path/fingerprint
+  pinning through `MONTYCAT_TLS_VERIFY`, `MONTYCAT_TLS_CERTIFICATE_PATH`, and
+  `MONTYCAT_TLS_CERTIFICATE_FINGERPRINT`. Existing `MONTYCAT_TLS=true`
+  connections retain their verification-off behavior unless configured.
+- Publish the dependency update consistently across the Python package,
+  compatibility launcher, Docker image, Compose defaults, Claude Desktop
+  extension, Claude plugins, and MCP Registry metadata.
+
+### Tests
+
+- Verify `montycat_update` forwards the canonical nested `timestamps` map
+  unchanged to the Python client.
+
 ## 1.1.4 — 2026-09-11
 
 Maintenance release. No tool, API, or engine-compatibility changes.

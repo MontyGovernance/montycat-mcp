@@ -98,6 +98,13 @@ Destructive tools are declared as such, so your client's confirmation prompts ap
 |---|---|
 | `MONTYCAT_URI` | Connection string: `montycat://user:password@host:port/store` |
 | `MONTYCAT_TLS` | `true` for a remote TLS engine |
+| `MONTYCAT_TLS_VERIFY` | Optional: `true` to verify with the platform trust store |
+| `MONTYCAT_TLS_CERTIFICATE_PATH` | Optional PEM certificate path for exact certificate pinning |
+| `MONTYCAT_TLS_CERTIFICATE_FINGERPRINT` | Optional SHA-256 certificate fingerprint as an alternative pin |
+
+All three verification settings are optional. With only `MONTYCAT_TLS=true`,
+MCP retains the historical encrypted-but-unverified behavior; with TLS unset or
+false, existing plaintext configurations are unchanged.
 | `MONTYCAT_DEFAULT_KEYSPACE` | Memory namespace; `memory` by default |
 | `MONTYCAT_SCOPE` | Default scope when a call omits one |
 | `MONTYCAT_AUTO_PROVISION` | Create a permitted scope on first use; `true` by default |

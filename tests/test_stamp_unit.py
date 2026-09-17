@@ -64,3 +64,32 @@ def test_input_is_not_mutated(stamp):
     original = {"text": "x"}
     stamp(original)
     assert original == {"text": "x"}, "caller's dict must not be modified in place"
+
+
+@pytest.mark.asyncio
+async def test_update_forwards_nested_timestamp_metadata(server, monkeypatch):
+    """The 1.2.5 client/server update path accepts the same canonical timestamp
+    shape as inserts. MCP must not flatten or discard that metadata."""
+    captured = {}
+
+    class Keyspace:
+        async def update_value(self, **kwargs):
+            captured.update(kwargs)
+            return {"status": True, "payload": None, "error": None}
+
+    async def bind(_keyspace):
+        return Keyspace()
+
+    monkeypatch.setattr(server, "_bind", bind)
+    timestamps = {"modifiedon": "2026-09-17T12:00:00"}
+
+    result = await server.montycat_update(
+        keyspace="memory",
+        key="42",
+        updates={"text": "revised", "timestamps": timestamps},
+    )
+
+    assert result["status"] is True
+    assert captured["timestamps"] == timestamps
+    assert captured["text"] == "revised"
+    assert captured["key"] == "42"

@@ -4,12 +4,15 @@
       "command": "uvx",
       "args": [
         "--from",
-        "montycat-mcp==1.1.4",
+        "montycat-mcp==1.1.5",
         "montycat-mcp"
       ],
       "env": {
         "MONTYCAT_URI": "${MONTYCAT_URI:-}",
         "MONTYCAT_TLS": "${MONTYCAT_TLS:-false}",
+        "MONTYCAT_TLS_VERIFY": "${MONTYCAT_TLS_VERIFY:-}",
+        "MONTYCAT_TLS_CERTIFICATE_PATH": "${MONTYCAT_TLS_CERTIFICATE_PATH:-}",
+        "MONTYCAT_TLS_CERTIFICATE_FINGERPRINT": "${MONTYCAT_TLS_CERTIFICATE_FINGERPRINT:-}",
         "MONTYCAT_DEFAULT_KEYSPACE": "${MONTYCAT_DEFAULT_KEYSPACE:-memory}",
         "MONTYCAT_AUTOSTART": "${MONTYCAT_AUTOSTART:-auto}"
       }

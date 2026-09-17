@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "io.github.montygovernance.montycat-mcp",
   "display_name": "Montycat MCP — Shared Memory for AI Agents",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Shared, persistent memory for AI agents — local-first, live, and searchable by meaning.",
   "long_description": "Montycat MCP gives Claude Desktop and other MCP-compatible AI systems one durable memory across conversations. Agents connected to the same Montycat engine can remember preferences, decisions, facts, and structured knowledge; recall relevant context by meaning; and react to each other's updates in real time. Run it locally by default or connect it to a trusted shared engine, with the database and embeddings under your control.",
   "author": {
@@ -63,6 +63,9 @@
       "env": {
         "MONTYCAT_URI": "${user_config.montycat_uri}",
         "MONTYCAT_TLS": "${user_config.montycat_tls}",
+        "MONTYCAT_TLS_VERIFY": "${user_config.montycat_tls_verify}",
+        "MONTYCAT_TLS_CERTIFICATE_PATH": "${user_config.montycat_tls_certificate_path}",
+        "MONTYCAT_TLS_CERTIFICATE_FINGERPRINT": "${user_config.montycat_tls_certificate_fingerprint}",
         "MONTYCAT_DEFAULT_KEYSPACE": "${user_config.default_keyspace}",
         "MONTYCAT_AUTOSTART": "${user_config.autostart}"
       }
@@ -83,6 +86,27 @@
       "description": "Enable only when the configured Montycat engine presents a trusted TLS certificate.",
       "required": false,
       "default": false
+    },
+    "montycat_tls_verify": {
+      "type": "boolean",
+      "title": "Verify TLS certificate with platform trust",
+      "description": "Use for a publicly trusted or locally installed CA certificate. Leave off when using an explicit certificate pin.",
+      "required": false,
+      "default": false
+    },
+    "montycat_tls_certificate_path": {
+      "type": "string",
+      "title": "Pinned TLS certificate path (optional)",
+      "description": "Path to the engine certificate in PEM format. The presented certificate must match exactly.",
+      "required": false,
+      "default": ""
+    },
+    "montycat_tls_certificate_fingerprint": {
+      "type": "string",
+      "title": "Pinned TLS certificate fingerprint (optional)",
+      "description": "SHA-256 fingerprint of the engine certificate, as an alternative to shipping the PEM file.",
+      "required": false,
+      "default": ""
     },
     "default_keyspace": {
       "type": "string",

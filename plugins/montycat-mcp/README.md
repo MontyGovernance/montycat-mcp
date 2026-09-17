@@ -39,6 +39,7 @@ To connect to an existing engine, set these variables before starting Claude:
 ```bash
 export MONTYCAT_URI="montycat://user:password@host:21210/store"
 export MONTYCAT_TLS="true"
+export MONTYCAT_TLS_CERTIFICATE_PATH="/path/to/server.crt"
 ```
 
 Do not commit a URI containing credentials. Use a least-privilege delegated

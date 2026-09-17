@@ -7,12 +7,12 @@
     "url": "https://github.com/MontyGovernance/montycat-mcp",
     "source": "github"
   },
-  "version": "1.1.4",
+  "version": "1.1.5",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "montycat-mcp",
-      "version": "1.1.4",
+      "version": "1.1.5",
       "transport": {
         "type": "stdio"
       },
@@ -30,12 +30,33 @@
           "isRequired": false,
           "isSecret": false,
           "format": "string"
+        },
+        {
+          "name": "MONTYCAT_TLS_CERTIFICATE_PATH",
+          "description": "Optional PEM certificate path for exact TLS certificate pinning",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "MONTYCAT_TLS_VERIFY",
+          "description": "Set to true to verify TLS with the platform trust store",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "MONTYCAT_TLS_CERTIFICATE_FINGERPRINT",
+          "description": "Optional SHA-256 TLS certificate fingerprint",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
         }
       ]
     },
     {
       "registryType": "oci",
-      "identifier": "docker.io/montygovernance/montycat-mcp:1.1.4",
+      "identifier": "docker.io/montygovernance/montycat-mcp:1.1.5",
       "transport": {
         "type": "stdio"
       },
@@ -50,6 +71,27 @@
         {
           "name": "MONTYCAT_TLS",
           "description": "Set to true when connecting to a TLS-enabled remote Montycat engine",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "MONTYCAT_TLS_CERTIFICATE_PATH",
+          "description": "Optional PEM certificate path for exact TLS certificate pinning",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "MONTYCAT_TLS_VERIFY",
+          "description": "Set to true to verify TLS with the platform trust store",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "MONTYCAT_TLS_CERTIFICATE_FINGERPRINT",
+          "description": "Optional SHA-256 TLS certificate fingerprint",
           "isRequired": false,
           "isSecret": false,
           "format": "string"

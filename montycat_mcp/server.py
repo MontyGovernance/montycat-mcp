@@ -17,6 +17,11 @@ Connection is configured from the environment:
     MONTYCAT_PASSWORD
     MONTYCAT_STORE
     MONTYCAT_TLS           "true"/"false", default false
+    MONTYCAT_TLS_VERIFY    verify with the platform trust store
+    MONTYCAT_TLS_CERTIFICATE_PATH
+                           pin the engine certificate from a PEM file
+    MONTYCAT_TLS_CERTIFICATE_FINGERPRINT
+                           pin the engine certificate by SHA-256 fingerprint
 
   behavior:
 
@@ -252,19 +257,48 @@ def _env_bool(name: str, default: bool) -> bool:
     return val.strip().lower() in ("1", "true", "yes", "on")
 
 
+def _env_optional_bool(name: str) -> Optional[bool]:
+    """Read a tri-state boolean, preserving absence for SDK defaults."""
+    val = os.environ.get(name)
+    if val is None and name.startswith("MONTYCAT_"):
+        val = os.environ.get(f"MEMOCAT_{name.removeprefix('MONTYCAT_')}")
+    if val is None or not val.strip():
+        return None
+    return val.strip().lower() in ("1", "true", "yes", "on")
+
+
+def _env_optional(name: str) -> Optional[str]:
+    val = os.environ.get(name)
+    if val is None and name.startswith("MONTYCAT_"):
+        val = os.environ.get(f"MEMOCAT_{name.removeprefix('MONTYCAT_')}")
+    return val.strip() if val and val.strip() else None
+
+
 def _get_engine() -> Engine:
     """Build the shared Engine once, from the environment."""
     global _engine
     if _engine is not None:
         return _engine
 
+    tls = _env_bool("MONTYCAT_TLS", False)
+    # The UI exposes VERIFY as an unchecked-by-default boolean. Treat false as
+    # "platform verification not requested" rather than forwarding an explicit
+    # contradiction to a certificate pin, which independently implies
+    # verification in the SDK.
+    platform_verification = _env_optional_bool("MONTYCAT_TLS_VERIFY")
+    tls_options = {
+        "certificate_verification": True if platform_verification else None,
+        "certificate_path": _env_optional("MONTYCAT_TLS_CERTIFICATE_PATH"),
+        "certificate_fingerprint": _env_optional(
+            "MONTYCAT_TLS_CERTIFICATE_FINGERPRINT"
+        ),
+    }
     uri = os.environ.get("MONTYCAT_URI")
     if uri:
-        _engine = Engine.from_uri(uri)
+        _engine = Engine.from_uri(uri, tls=tls, **tls_options)
         # URI syntax identifies the endpoint and credentials; TLS remains an
         # explicit opt-in so existing montycat:// configurations keep their
         # plaintext behavior.
-        _engine.tls = _env_bool("MONTYCAT_TLS", False)
     else:
         _engine = Engine(
             host=os.environ.get("MONTYCAT_HOST", "127.0.0.1"),
@@ -272,7 +306,8 @@ def _get_engine() -> Engine:
             username=os.environ.get("MONTYCAT_USERNAME", ""),
             password=os.environ.get("MONTYCAT_PASSWORD", ""),
             store=os.environ.get("MONTYCAT_STORE"),
-            tls=_env_bool("MONTYCAT_TLS", False),
+            tls=tls,
+            **tls_options,
         )
     return _engine
 

@@ -80,7 +80,62 @@ def test_uri_connection_can_opt_into_tls(server, monkeypatch):
     monkeypatch.setenv("MONTYCAT_URI", "montycat://user:password@localhost:21210/store")
     monkeypatch.setenv("MONTYCAT_TLS", "true")
 
-    assert server._get_engine().tls is True
+    engine = server._get_engine()
+    assert engine.tls is True
+    assert engine.tls_options.verification is False
+    assert engine.tls_options.pinned is False
+    server._engine = None
+
+
+def test_tls_verification_settings_are_strictly_optional(server, monkeypatch):
+    monkeypatch.setattr(server, "_engine", None)
+    monkeypatch.setenv("MONTYCAT_URI", "montycat://user:password@localhost:21210/store")
+    for name in (
+        "MONTYCAT_TLS",
+        "MONTYCAT_TLS_VERIFY",
+        "MONTYCAT_TLS_CERTIFICATE_PATH",
+        "MONTYCAT_TLS_CERTIFICATE_FINGERPRINT",
+        "MEMOCAT_TLS",
+        "MEMOCAT_TLS_VERIFY",
+        "MEMOCAT_TLS_CERTIFICATE_PATH",
+        "MEMOCAT_TLS_CERTIFICATE_FINGERPRINT",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+    engine = server._get_engine()
+    assert engine.tls is False
+    assert engine.tls_options.verification is False
+    assert engine.tls_options.pinned is False
+    server._engine = None
+
+
+def test_false_platform_verification_keeps_legacy_tls_behavior(server, monkeypatch):
+    monkeypatch.setattr(server, "_engine", None)
+    monkeypatch.setenv("MONTYCAT_URI", "montycat://user:password@localhost:21210/store")
+    monkeypatch.setenv("MONTYCAT_TLS", "true")
+    monkeypatch.setenv("MONTYCAT_TLS_VERIFY", "false")
+
+    engine = server._get_engine()
+    assert engine.tls is True
+    assert engine.tls_options.verification is False
+    assert engine.tls_options.pinned is False
+    server._engine = None
+
+
+def test_uri_connection_can_pin_tls_certificate(server, monkeypatch):
+    monkeypatch.setattr(server, "_engine", None)
+    monkeypatch.setenv("MONTYCAT_URI", "montycat://user:password@localhost:21210/store")
+    monkeypatch.setenv("MONTYCAT_TLS", "true")
+    monkeypatch.setenv("MONTYCAT_TLS_VERIFY", "false")
+    monkeypatch.setenv(
+        "MONTYCAT_TLS_CERTIFICATE_FINGERPRINT",
+        ":".join(["AA"] * 32),
+    )
+
+    engine = server._get_engine()
+    assert engine.tls is True
+    assert engine.tls_options.pinned is True
+    assert engine.tls_options.verification is True
     server._engine = None
 
 
