@@ -74,6 +74,7 @@ async def test_tools_are_listed_under_the_montycat_name():
         assert "montycat_policy_explain" in names
         assert "montycat_policy_history" in names
         assert "montycat_remove_keyspace" in names
+        assert "montycat_update_cache" in names
         assert "montycat_enable_semantic" in names
         assert "montycat_disable_semantic" in names
         assert "montycat_start_snapshots" in names

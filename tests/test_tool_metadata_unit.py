@@ -33,6 +33,7 @@ NON_DESTRUCTIVE_MUTATING = {
     "montycat_remember_bulk",
     "montycat_update",
     "montycat_create_keyspace",
+    "montycat_update_cache",
     "montycat_enable_semantic",
     "montycat_enable_external_vectors",
     "montycat_start_snapshots",
@@ -44,7 +45,7 @@ NON_DESTRUCTIVE_MUTATING = {
 async def test_all_tools_have_directory_metadata():
     tools = {tool.name: tool for tool in await mcp.list_tools()}
     assert set(tools) == READ_ONLY | NON_DESTRUCTIVE_MUTATING | DESTRUCTIVE
-    assert len(tools) == 24
+    assert len(tools) == 25
 
     for name, tool in tools.items():
         assert tool.title, f"{name} must have a user-facing title"

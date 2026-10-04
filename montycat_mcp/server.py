@@ -156,7 +156,10 @@ def _is_indexable_timestamp(text: Any) -> bool:
     if not isinstance(text, str):
         return False
     try:
-        datetime.fromisoformat(text)
+        # Python 3.10 does not accept RFC 3339's trailing ``Z`` even though
+        # the engine does. Preserve the original value sent to the engine.
+        candidate = f"{text[:-1]}+00:00" if text.endswith("Z") else text
+        datetime.fromisoformat(candidate)
         return True
     except ValueError:
         return False
@@ -1071,7 +1074,9 @@ async def montycat_create_keyspace(
         persistent: Deprecated compatibility option. True maps to
                     storage="persistent"; False maps to storage="inmemory".
         cache: Optional cache size in MB (persistent only; min/default 10).
-        compression: Enable compression (persistent only).
+        compression: Enable compression at keyspace creation (persistent only).
+                     This setting is immutable; migrate to a new keyspace to
+                     change it later.
     """
     if not isinstance(keyspace, str) or not keyspace.strip():
         raise ValueError("keyspace must be a non-empty string.")
@@ -1143,6 +1148,31 @@ async def montycat_create_keyspace(
             "error": None,
         }
     return result
+
+
+@mcp.tool(title="Update Keyspace Cache", annotations=MUTATING)
+@_binding_failure
+async def montycat_update_cache(
+    cache: int,
+    keyspace: Optional[str] = None,
+    scope: Optional[str] = None,
+) -> Any:
+    """Change the cache capacity of an existing persistent keyspace.
+
+    Args:
+        cache: Cache capacity in MB. Must be a positive integer.
+        scope: Owner/user scope (maps to keyspace mem_<scope>). Use "shared"
+               for the configured shared keyspace.
+        keyspace: Explicit keyspace override (advanced; bypasses scope).
+    """
+    if isinstance(cache, bool) or not isinstance(cache, int) or cache <= 0:
+        raise ValueError("cache must be a positive integer in MB.")
+
+    name = _resolve_keyspace(scope, keyspace)
+    ks = await _bind(name)
+    if await _resolve_persistent(name) is not True:
+        raise ValueError("cache can be changed only for persistent keyspaces.")
+    return await _call(ks.update_cache(cache=cache))
 
 
 @mcp.tool(title="Delete Memory Keyspace", annotations=DESTRUCTIVE)
@@ -1493,6 +1523,9 @@ async def montycat_list_memories(
     scope: Optional[str] = None,
     limit: int = 25,
     recent: bool = True,
+    since: Optional[str] = None,
+    until: Optional[str] = None,
+    timestamp_field: str = "_created_at",
 ) -> Any:
     """Browse stored memories — enumerate what is remembered, not search by meaning.
 
@@ -1509,10 +1542,33 @@ async def montycat_list_memories(
                 bias stays approximate (by storage volume) and falls back to a
                 full scan when the latest volume is empty. Pass False to read
                 from the oldest record forward.
+        timestamp_field: Native Timestamp index field constrained by since/until.
+                         Defaults to the auto-stamped `_created_at` field.
+        since: Lower timestamp bound (ISO-8601).
+        until: Upper timestamp bound (ISO-8601).
     """
     _validate_limit(limit)
+    if not isinstance(timestamp_field, str) or not timestamp_field.strip():
+        raise ValueError("timestamp_field must be a non-empty Timestamp index field name.")
+    for bound_name, bound in (("since", since), ("until", until)):
+        if bound is not None and (not isinstance(bound, str) or not bound.strip()):
+            raise ValueError(f"{bound_name} must be a non-empty timestamp string.")
+
     name = _resolve_keyspace(scope, keyspace)
     ks = await _bind(name)
+    if since is not None or until is not None:
+        if since is not None and until is not None:
+            timestamp = Timestamp(start=since, end=until)
+        elif since is not None:
+            timestamp = Timestamp(after=since)
+        else:
+            timestamp = Timestamp(before=until)
+        return await _call(ks.lookup_values_where(
+            limit=limit,
+            key_included=True,
+            **{timestamp_field: timestamp},
+        ))
+
     # get_keys needs a volume selector *or* a range; `latest_volume=False` alone
     # is neither, and the client rejects it with "Please provide volumes/latest
     # volume or limit." Only the persistent client takes a range and an `order`
@@ -1922,6 +1978,7 @@ memocat_policy_view = montycat_policy_view
 memocat_policy_history = montycat_policy_history
 memocat_policy_explain = montycat_policy_explain
 memocat_create_keyspace = montycat_create_keyspace
+memocat_update_cache = montycat_update_cache
 memocat_remove_keyspace = montycat_remove_keyspace
 memocat_enable_semantic = montycat_enable_semantic
 memocat_semantic_status = montycat_semantic_status

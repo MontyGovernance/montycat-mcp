@@ -87,8 +87,13 @@ isolation, give each MCP server its own least-privilege Montycat credential.
 | Recall | `montycat_semantic_search`, `montycat_recall`, `montycat_list_memories` |
 | Inspect schemas | `montycat_list_enforced_schemas` — check field names and data types before structured writes or filtered retrieval |
 | Collaborate | `montycat_await_memory_change` — wait for another agent's write, no polling |
-| Namespaces | `montycat_list_keyspaces`, `montycat_create_keyspace`, `montycat_remove_keyspace` |
+| Namespaces | `montycat_list_keyspaces`, `montycat_create_keyspace`, `montycat_update_cache`, `montycat_remove_keyspace` |
 | Admin | semantic index, snapshot, and policy tools — see the [plugin guide](plugins/montycat-mcp/README.md) |
+
+For persistent namespaces, `cache` is a capacity in MB and `compression` is
+chosen by `montycat_create_keyspace`. Compression cannot be changed after the
+keyspace is created; migrate into a new keyspace to use a different setting.
+Cache capacity can be changed later with `montycat_update_cache`.
 
 Destructive tools are declared as such, so your client's confirmation prompts apply.
 

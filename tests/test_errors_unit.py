@@ -277,6 +277,49 @@ async def test_create_keyspace_rejects_invalid_or_conflicting_schema_before_engi
 
 
 @pytest.mark.asyncio
+async def test_update_cache_uses_persistent_client_surface(server, monkeypatch):
+    calls = []
+
+    class Keyspace:
+        async def update_cache(self, **kwargs):
+            calls.append(kwargs)
+            return {"status": True, "payload": "updated", "error": None}
+
+    async def bind(name):
+        assert name == "durable"
+        return Keyspace()
+
+    async def resolve(name):
+        assert name == "durable"
+        return True
+
+    monkeypatch.setattr(server, "_bind", bind)
+    monkeypatch.setattr(server, "_resolve_persistent", resolve)
+
+    result = await server.montycat_update_cache(keyspace="durable", cache=32)
+
+    assert result["status"] is True
+    assert calls == [{"cache": 32}]
+
+
+@pytest.mark.asyncio
+async def test_update_cache_rejects_invalid_cache_and_inmemory(server, monkeypatch):
+    with pytest.raises(ValueError, match="positive integer"):
+        await server.montycat_update_cache(keyspace="k", cache=0)
+
+    async def bind(_name):
+        return object()
+
+    async def resolve(_name):
+        return False
+
+    monkeypatch.setattr(server, "_bind", bind)
+    monkeypatch.setattr(server, "_resolve_persistent", resolve)
+    with pytest.raises(ValueError, match="persistent keyspaces"):
+        await server.montycat_update_cache(keyspace="working", cache=10)
+
+
+@pytest.mark.asyncio
 async def test_create_keyspace_can_enable_scoped_semantic_search(server, monkeypatch):
     class FakeKeyspace:
         def __init__(self):
@@ -349,6 +392,7 @@ async def test_every_tool_reports_failure_when_the_engine_is_unreachable(server,
             capability="manage-semantic"
         ),
         "create_keyspace": server.montycat_create_keyspace(keyspace="k"),
+        "update_cache": server.montycat_update_cache(keyspace="k", cache=10),
         "remove_keyspace": server.montycat_remove_keyspace(keyspace="k"),
         "enable_semantic": server.montycat_enable_semantic(keyspace="k"),
         "disable_semantic": server.montycat_disable_semantic(keyspace="k"),

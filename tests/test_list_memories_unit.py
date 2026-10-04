@@ -159,3 +159,58 @@ async def test_persistent_keyspace_still_scans_by_range(server, listing):
     assert result["status"] is True
     assert result["payload"] == ["k1", "k2"], "limit must still trim the over-read"
     assert calls == [{"limit": [0, 2], "volumes": [], "latest_volume": False}]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("bounds, expected", [
+    ({"since": "2026-09-22T00:00:00Z"},
+     {"after_timestamp": "2026-09-22T00:00:00Z"}),
+    ({"until": "2026-09-25T00:00:00Z"},
+     {"before_timestamp": "2026-09-25T00:00:00Z"}),
+    ({"since": "2026-09-22", "until": "2026-09-25"},
+     {"range_timestamp": ["2026-09-22", "2026-09-25"]}),
+])
+async def test_time_bounded_listing_uses_native_timestamp_filter(
+    server, monkeypatch, bounds, expected
+):
+    calls = []
+
+    class FilteredKeyspace:
+        @classmethod
+        async def lookup_values_where(cls, **kwargs):
+            calls.append(kwargs)
+            return {"status": True, "payload": [], "error": None}
+
+    async def bind(*_args, **_kwargs):
+        return FilteredKeyspace
+
+    monkeypatch.setattr(server, "_bind", bind)
+    result = await server.montycat_list_memories(
+        keyspace="POReq", limit=150, timestamp_field="createdon", **bounds
+    )
+
+    assert result["status"] is True
+    assert calls[0]["limit"] == 150
+    assert calls[0]["key_included"] is True
+    assert calls[0]["createdon"].serialize() == expected
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("kwargs, message", [
+    ({"timestamp_field": " "}, "timestamp_field"),
+    ({"since": ""}, "since"),
+    ({"until": " "}, "until"),
+])
+async def test_invalid_list_time_bounds_are_rejected_before_binding(
+    server, monkeypatch, kwargs, message
+):
+    called = False
+
+    async def bind(*_args, **_kwargs):
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(server, "_bind", bind)
+    with pytest.raises(ValueError, match=message):
+        await server.montycat_list_memories(keyspace="POReq", **kwargs)
+    assert called is False

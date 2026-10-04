@@ -36,6 +36,17 @@ def test_caller_supplied_created_at_is_hoisted_so_it_stays_queryable(stamp):
     assert "_created_at" not in out, "should have moved, not been duplicated"
 
 
+@pytest.mark.parametrize("value", [
+    "2026-09-22T12:34:56Z",
+    "2026-09-22T12:34:56.123456Z",
+    "2026-09-22T12:34:56+02:00",
+])
+def test_rfc3339_created_at_is_hoisted_unchanged(stamp, value):
+    out = stamp({"text": "imported", "_created_at": value})
+    assert out["timestamps"]["_created_at"] == value
+    assert "_created_at" not in out
+
+
 def test_unparseable_created_at_is_left_alone(stamp):
     """An entry the engine cannot parse fails the whole insert, so anything
     unrecognized stays an ordinary field rather than breaking the write."""

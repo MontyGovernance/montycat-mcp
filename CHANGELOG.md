@@ -2,6 +2,26 @@
 
 All notable changes to Montycat MCP are documented here.
 
+## Unreleased
+
+### Added
+
+- Add `montycat_update_cache` for changing persistent-keyspace cache capacity
+  through Montycat Python 1.2.6. Compression remains immutable after creation.
+
+### Fixed
+
+- Apply `since`, `until`, and `timestamp_field` in `montycat_list_memories`
+  using the native Timestamp index instead of silently ignoring those inputs.
+- Recognize RFC 3339 timestamps ending in `Z`, including fractional seconds,
+  on Python 3.10 so caller-supplied `_created_at` values remain searchable by
+  `since` and `until`.
+
+### Changed
+
+- Require Montycat Python 1.2.6 and prepare version 1.1.6 consistently across
+  package, compatibility launcher, Docker, Compose, and registry metadata.
+
 ## 1.1.5 — 2026-09-17
 
 ### Changed
