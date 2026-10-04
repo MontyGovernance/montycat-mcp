@@ -2,7 +2,7 @@
 
 All notable changes to Montycat MCP are documented here.
 
-## Unreleased
+## 1.1.6 — 2026-10-02
 
 ### Added
 
