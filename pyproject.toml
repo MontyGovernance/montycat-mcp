@@ -69,7 +69,7 @@ dependencies = [
     # timestamp metadata across single and bulk updates; 1.2.6 adds mutable
     # persistent-keyspace cache capacity. Montycat MCP exposes these surfaces
     # without compatibility fallbacks.
-    "montycat>=1.2.6,<2",
+    "montycat>=1.2.7,<2",
 ]
 
 [project.scripts]
